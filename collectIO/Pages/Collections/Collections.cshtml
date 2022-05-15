@@ -1,0 +1,66 @@
+﻿@page
+@model collectIO.Pages.Collections.CollectionsModel
+@{
+    ViewData["Title"] = @Locale.Translations["Collections"];
+}
+
+@*<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>*@
+
+<script src="~/js/dataTable.js"></script>
+
+<h1>@Locale.Translations["Collections page:"]</h1>
+<section class="py-5">
+    <div class="container-fluid">
+        <table id="dataTable" class="table" style="width:100%">
+
+            <thead>
+                <tr>
+                    <th>@Locale.Translations["Name"]</th>
+                    <th>@Locale.Translations["Collection Type"]</th>
+                    <th>@Locale.Translations["Created"]</th>
+                    <th>@Locale.Translations["Items Count"]</th>
+                    <th>@Locale.Translations["Actions"]</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var item in Model.collection)
+                {
+                    var photoPath = $"/images/{item.imagePath ?? "no-image.png"}";
+                    if (photoPath.Contains("imagekit"))
+                    {
+                        photoPath = photoPath.Remove(0, 8);
+                    }
+
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="@item.imagePath"
+                                     alt=""
+                                     style="width: 45px; height: 45px"
+                                     class="rounded-circle" />
+                                <div class="ms-3">
+                                    <p class="fw-bold mb-1">@item.Name</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <p class="fw-normal mb-1">@Locale.Translations[@item.collectionType.ToString()]</p>
+                        </td>
+                        <td>
+                            <p class="fw-normal mb-1">@item.CreationDate</p>
+                        </td>
+                        <td>
+                            <span class="fw-normal mb-1">@Model.GetItemsCount(item)</span>
+                        </td>
+                        <td>
+                            <a asp-page="/Collections/CollectionDetails" asp-route-Id="@item.id" class="btn btn-outline-warning btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> @Locale.Translations["View"]</a>
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

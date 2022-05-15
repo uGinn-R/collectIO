@@ -1,0 +1,129 @@
+﻿@page
+@model collectIO.Pages.Collections.CollectionDetailsModel
+@{
+    ViewData["Title"] = $"{Locale.Translations["Details"]} - {Model.Collection.Name}";
+    var photoPath = $"/images/{Model.Collection.imagePath ?? "no-image.png"}";
+    if (photoPath.Contains("imagekit"))
+    {
+        photoPath = photoPath.Remove(0, 8);
+    }
+    AppUser user = await UserManager.GetUserAsync(User);
+}
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+<script>
+        $(document).ready(function () {
+            $(".btn").click(function () {
+                $(this).html(
+                    '<i class="fa fa-circle-o-notch fa-spin"></i> @Locale.Translations["Loading"]...'
+                );
+            });
+        });
+</script>
+<section class="py-5">
+    <div class="row align-items-center">
+        <div class="col-md-4"><img class="card-img-top mb-5 mb-md-0 rounded-pill" src="@photoPath" alt="title_image" /></div>
+        <div class="col-md-8" style="word-wrap:break-word">
+            <h1 class="display-5 fw-bolder">@Model.Collection.Name</h1>
+            <h6>@Locale.Translations["Collection Type"]: @Locale.Translations[Model.Collection.collectionType.ToString()]</h6>
+            @Markdown.ParseHtmlString(Model.Collection.Description)
+        </div>
+    </div>
+</section>
+<section class="py-5">
+    <div class="container-fluid">
+        @{
+            if (User.Identity.IsAuthenticated)
+            {
+                if (user.Id == Model.Collection.CollectionAuthorID)
+                {
+                    <a asp-page="/Items/Edit" asp-route-Id="@Model.Collection.id" asp-page-handler="CreateItem" class="btn btn-outline-success btn-sm"><i class="fa fa-plus" aria-hidden="true"></i> @Locale.Translations["Add item"]</a>
+                }
+            }
+        }
+        @if (Model.items.Count() > 0)
+        {
+            <h3 class="fw-bolder mb-4">@Locale.Translations["Collection items"]:</h3>
+            @*@await Html.PartialAsync("_ItemsPartial", Model.items)*@
+
+            @*<div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">*@
+            <script src="~/js/dataTable.js"></script>
+            <script>
+        $(document).ready(function () {
+        $('.collapser').collapser({
+            mode: 'words',
+            truncate: 20,
+            showText: '@Locale.Translations["Show more"]',
+            hideText: '@Locale.Translations["Show less"]'
+        });
+});
+            </script>
+            <table id="dataTable" class="table align-middle mb-0" style="width:100%">
+
+                <thead>
+                    <tr>
+                        <th>@Locale.Translations["Name"]</th>
+                        <th>@Locale.Translations["Description"]</th>
+                        <th>@Locale.Translations["Created"]</th>
+                        <th>@Locale.Translations["Actions"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.items)
+                    {
+
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="@item.imagePath"
+                                         alt=""
+                                         style="width: 45px; height: 45px"
+                                         class="rounded-circle" />
+                                    <div class="ms-3">
+                                        <p class="fw-bold mb-1">@item.Name</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-break overflow-hidden mb-1 collapser" style="word-wrap: break-word">@Html.Raw(item.Description)</div>
+                            </td>
+                            <td>
+                                <p class="fw-normal mb-1">@item.CreationDate.ToShortDateString()</p>
+                            </td>
+                            <td>
+                                <a asp-page="/Items/ItemDetails" asp-route-Id="@item.id" asp-page-handler="ViewItem" class="btn btn-outline-warning btn-sm">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                    @Locale.Translations["View"]
+                                </a>
+                            </td>
+                        </tr>
+
+
+
+                        <!--<div class="col mb-5">
+                    <div class="card h-100">-->
+                        <!-- Product image-->
+                        <!--<img class="card-img-top" src="@item.imagePath" alt="..." />-->
+                        <!-- Product details-->
+                        <!--<div class="card-body p-4">
+                    <div class="text-center">-->
+                        <!-- Product name-->
+                        <!--<h5 class="fw-bolder">@item.Name</h5>
+                            @Markdown.ParseHtmlString(item.Description)
+                        </div>
+                    </div>-->
+                        <!-- Product actions-->
+                        <!--<div class="card-footer p-4 pt-0 border-top-0 bg-transparent text-center">
+                                <a asp-page="/Items/ItemDetails" asp-route-Id="@item.id" asp-page-handler="ViewItem" class="btn btn-outline-warning btn-lg">@Locale.Translations["View"]</a>
+                            </div>
+                        </div>
+                    </div>-->
+                    }
+                </tbody>
+            </table>
+            @*</div>*@
+        }
+    </div>
+</section>

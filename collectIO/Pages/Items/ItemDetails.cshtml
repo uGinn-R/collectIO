@@ -1,0 +1,159 @@
+﻿@page
+@model collectIO.Pages.Items.ItemDetailsModel
+
+@{
+    ViewData["Title"] = $"{Locale.Translations["Details"]} - {Model._Item.Name}";
+    var photoPath = $"/images/{ Model._Item.imagePath ?? "no-image.png"}";
+    if (photoPath.Contains("imagekit"))
+    {
+        photoPath = photoPath.Remove(0, 8);
+    }
+}
+
+<section class="py-5">
+    <input type="hidden" asp-for="User" />
+    <div class="row align-items-center">
+        <div class="col-md-4"><img class="card-img-top mb-5 mb-md-0 rounded-pill" src="@photoPath" alt="title_image" /></div>
+        <div class="col-md-8">
+            <div class="text-break" style="word-wrap: break-word">
+                <h1 class="display-5 fw-bolder">@Model._Item.Name</h1>
+                @Markdown.ParseHtmlString(Model._Item.Description)
+            </div>
+
+                @{
+                    foreach (var item in Model.ItemDetails)
+                    {
+                        <div class="text-break" style="word-wrap: break-word">
+                        @item.Key : @Html.Raw(@item.Value)
+                        </div>
+                    }
+                }
+
+            </div>
+        </div>
+</section>
+
+@if (Model._Item != null)
+{
+<section class="py-5">
+    @{
+        if (User.Identity.IsAuthenticated)
+        {
+            if (Model.AlreadyLiked)
+            {
+                Model.buttonStyle = "btn-success";
+            }
+            else Model.buttonStyle = "btn-secondary";
+
+            <button class="btn btn-sm @Model.buttonStyle" id="like"><i class="fa fa-thumbs-up"></i> @Locale.Translations["LIKE"] <span class="badge" id="badge">@Model.LikesCount</span>
+            </button>
+            <script>
+                var LikeBtn = document.querySelector('#like');
+                var likescounter = document.getElementById('badge');
+                var counter = likescounter.innerHTML;
+                LikeBtn.addEventListener('click', function () {
+                fetch(`?handler=LikeItem&id=${@Model._Item.id}`);
+                if (LikeBtn.classList.contains('btn-secondary')) {
+                    this.classList.remove('btn-secondary');
+                    this.classList.toggle('btn-success');
+                    counter++;
+                    likescounter.innerHTML = counter;
+                }
+                else {
+                    this.classList.remove('btn-success');
+                    this.classList.toggle('btn-secondary');
+                    counter--;
+                    likescounter.innerHTML = counter;
+                }
+            });
+            </script>
+        }
+    }
+
+    @{
+        if (Model._Item.OwnerId == UserManager.GetUserId(User))
+        {
+            <a asp-page="/Items/Edit" asp-route-Id="@Model._Item.id" class="btn btnPost btn-outline-info btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> @Locale.Translations["Edit"]</a>
+            <button type="button" class="btn btn-outline-danger btn-sm dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-trash-o" aria-hidden="true"></i> @Locale.Translations["Delete"]
+            </button>
+            <div class="dropdown-menu text-center">
+                <div class="dropdown-header">@Locale.Translations["Confirm delete"]</div>
+                <form method="post">
+                    <button type="button" class="btn btn-sm btn-success" data-toggle="dropdown"><i class="fa fa-window-close" aria-hidden="true"></i> @Locale.Translations["NO"]</button>
+                    <input type="hidden" name="itemId" value="@Model._Item.id" />
+                    <button type="submit" asp-page-handler="Delete" class="btn btn-sm btn-danger"><i class="fa fa-check-square" aria-hidden="true"></i> @Locale.Translations["YES"]</button>
+                </form>
+            </div>
+            @*</div>
+                </div>*@
+        }
+    }
+
+
+    @{
+        if (User.Identity.IsAuthenticated)
+        {
+            <div class="row">&nbsp;</div>
+            <div class="row">
+                <div class="col">@Locale.Translations["Enter your comment:"]</div>
+            </div>
+            <div class="row">&nbsp;</div>
+            <div class="row">
+                <div class="col">
+                    <div class="col-lg-4 col-md-6 col-sm-8">
+                        <textarea class="form-control mb-2" id="messageInput"></textarea>
+                    </div>
+                    <input type="hidden" id="itemId" value="@Model._Item.id" />
+                    <input type="hidden" value="@Model._Item.ItemComments" />
+                    <input type="hidden" id="userInput" value="@string.Concat("[",DateTime.Now,"] ", User.Identity.Name)" />
+                    <button type="button" id="sendButton" class="btn btn-sm btn-success"><i class="fa fa-paper-plane-o" aria-hidden="true"></i> @Locale.Translations["SEND"]</button>
+
+                    @*<input type="button" id="sendButton" value="@Locale.Translations["SEND"]" />*@
+                    <script>
+                    var sendBtn = document.querySelector('#sendButton');
+                    var msg = document.querySelector('#messageInput');
+                    sendBtn.addEventListener('click', function ()
+                    {
+                    fetch(`?handler=AddComment&ItemId=${@Model._Item.id}&message=${msg.value}`);
+                    });
+                    </script>
+                </div>
+            </div>
+        }
+    }
+
+
+    <div class="row">
+        <div class="col-12">
+            <hr />
+            <h6><i class="fa fa-comment-o" aria-hidden="true"></i> @Locale.Translations["Comments"]:</h6>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <ul id="messagesList" style="max-height:120px" class="overflow-auto">
+                @{
+                    foreach (var comment in Model.ItemComments)
+                    {
+                        <li>[@comment.Created] @comment.CommentAuthor: @comment.Text</li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+
+    <script src="~/js/signalr.js"></script>
+    <script src="~/js/chat.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(".btnPost").click(function () {
+                $(this).html(
+                    '<i class="fa fa-circle-o-notch fa-spin"></i> @Locale.Translations["Loading"]...'
+                );
+            });
+        });
+    </script>
+</section>
+}

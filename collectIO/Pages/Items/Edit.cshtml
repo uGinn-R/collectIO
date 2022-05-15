@@ -1,0 +1,178 @@
+﻿
+@page
+@model collectIO.Pages.Items.EditModel
+@{
+    var title = Model.item.id > 0 ? @Locale.Translations["Edit"] : @Locale.Translations["Create"];
+    ViewData["Title"] = title;
+
+    var photoPath = $"/images/{Model.item.imagePath ?? "no-image.png"}";
+    if (photoPath.Contains("imagekit"))
+    {
+        photoPath = photoPath.Remove(0, 8);
+    }
+}
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <!-- include summernote css/js -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var ApplyBTN = document.getElementsByClassName("btnPost");
+            $('form').on("submit", function () {
+                $(ApplyBTN).html(
+                        '<i class="fa fa-circle-o-notch fa-spin"></i> @Locale.Translations["Loading"]...'
+                    );
+            });
+        });
+    </script>
+</head>
+
+<form method="post" class="was-validated" enctype="multipart/form-data" onkeydown="return event.key != 'Enter';">
+    <div class="row">
+        <div class="col">
+
+            <input type="hidden" asp-for="@Model.item.id" />
+            <input type="hidden" asp-for="@Model.item.imagePath" />
+            <input type="hidden" asp-for="@Model.CollectionId" />
+            <input type="hidden" asp-for="@Model.item.CreationDate" />
+
+            <section class="py-5">
+                <div class="row align-items-center">
+                    <div class="col-md-3"><img class="card-img-top mb-5 mb-md-0" src="@photoPath" alt="title_image" /></div>
+                    <div class="col-md">
+
+                        <h2 class="display-5 fw-bolder">@title</h2>
+
+                        <div class="card mb-2">
+                            <div class="card-header">@Locale.Translations["Name"]:</div>
+                            <div class="card-body">
+                                <div class="input-group">
+                                    <input class="form-control" asp-for="item.Name" type="text" placeholder="" required />
+                                </div>
+                                <span asp-validation-for="item.Name" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="card mb-2">
+                            <div class="card-header">@Locale.Translations["Description"]:</div>
+                            <div class="card-body">
+
+                                @*<div id="summernote"></div>*@
+                                <textarea class="form-control" id="summernote" asp-for="item.Description"></textarea>
+                                <script>
+                                    $('#summernote').summernote({
+                                        placeholder: '@Model.item.Description',
+                                        tabsize: 2,
+                                        height: 100
+                                    });
+                                </script>
+                            </div>
+                        </div>
+
+                        <div class="card mb-2">
+                            <div class="card-header">@Locale.Translations["Select image (drag and drop supported):"]</div>
+                            <div class="card-body">
+                                <div class="custom-file">
+
+                                    <input asp-for="Image" class="custom-file-input form-control text-center" />
+
+                                </div>
+                            </div>
+                        </div>
+                       
+                        @{
+                            foreach (var itm in @Model.ItemOptions)
+                            {
+                                foreach (var prop in @Model.item.GetType().GetProperties())
+                                {
+                                    if (itm.Value.Contains(prop.Name))
+                                    {
+                                        if (prop.Name.Contains("Bool"))
+                                        {
+                                            ViewData[prop.Name] = string.Concat("item.", prop.Name);
+
+                                            <div class="input-group mb-2">
+                                                <div class="input-group-text">
+                                                    <input class="form-check-input mt-0" type="checkbox" value="true" checked="@Model.itemFields[prop.Name]" name="@ViewData[prop.Name]" placeholder="@Model.itemFields[prop.Name]" aria-label="Checkbox for following text input">
+                                                </div>
+                                                <input type="text" class="form-control" value="@itm.Key">
+                                            </div>
+                                        }
+                                        else if (prop.Name.Contains("String"))
+                                        {
+                                            ViewData[prop.Name] = string.Concat("item.", prop.Name);
+
+                                            <div class="col mb-2">
+                                                <label>@itm.Key</label>
+                                                <input type="text" class="form-control" name="@ViewData[prop.Name]" value="@Model.itemFields[prop.Name]">
+                                            </div>
+                                        }
+                                        else if (prop.Name.Contains("Text"))
+                                        {
+                                            ViewData[prop.Name] = string.Concat("item.", prop.Name);
+
+                                            <div class="col mb-2">
+                                                <label>@itm.Key</label>
+                                                @*<input type="text" name="@ViewData[prop.Name]" class="form-control summernote" value="@Model.itemFields[prop.Name]" />*@
+                                                <textarea class="form-control summernote" name="@ViewData[prop.Name]">@Model.itemFields[prop.Name]</textarea>
+                                                <span class="input-group-append">
+                                                </span>
+                                            </div>
+                                            <script>
+                                                $('.summernote').summernote({
+                                                    tabsize: 2,
+                                                    height: 100
+                                                });
+                                            </script>
+                                        }
+                                        else if (prop.Name.Contains("Number"))
+                                        {
+                                            ViewData[prop.Name] = string.Concat("item.", prop.Name);
+
+                                            <div class="col mb-2">
+                                                <label>@itm.Key</label>
+                                                <input type="number" class="form-control" name="@ViewData[prop.Name]" value="@Model.itemFields[prop.Name]">
+                                            </div>
+                                        }
+                                        else if (prop.Name.Contains("Date"))
+                                        {
+                                            ViewData[prop.Name] = string.Concat("item.", prop.Name);
+                                            DateTime val = (DateTime)Model.itemFields[prop.Name];
+
+                                            <div class="col mb-2">
+                                                <label>@itm.Key</label>
+                                                <input type="date" name="@ViewData[prop.Name]" class="form-control" max="@DateTime.Now.Date.ToString("yyyy-MM-dd")" value="@val.Date.ToString("yyyy-MM-dd")" required />
+                                                <span class="input-group-append">
+                                                </span>
+                                            </div>
+                                            @*<script>
+                                $(function () {
+                                    $('.date').datepicker({
+                                        format: 'dd/mm/yyyy'
+                                    });
+                                });
+                            </script>*@
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        <button type="submit" class="btn btnPost btn-success"><i class="fa fa-check-square-o" aria-hidden="true"></i> @Locale.Translations["Apply"]</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    @section Scripts
+        {
+        @*<partial name="_ValidationScriptsPartial" />*@
+
+    }
+</form>
