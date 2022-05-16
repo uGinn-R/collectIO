@@ -14,7 +14,18 @@ namespace collectIO.Models
         [MaxLength(50)]
         public string Name { get; set; }
         public string Description { get; set; }
-        public string imagePath { get; set; }
+        public string imagePath 
+        {
+            get 
+            {
+                return ImagePath ?? "/images/no-image.png";
+            }
+            set 
+            {
+                this.ImagePath = value;
+            } 
+        }
+        public string ImagePath;
         public int CollectionId { get; set; }
         public DateTime CreationDate { get; set; }      
         public Collection ParentCollection { get; set; }

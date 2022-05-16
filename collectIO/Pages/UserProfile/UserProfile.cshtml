@@ -6,12 +6,6 @@
     ViewData["Title"] = @Locale.Translations["Profile"];
     AppUser user = await UserManager.GetUserAsync(User);
     user.SetLocale();
-
-    var photoPath = $"/images/{ Model.thisUser.AvatarImagePath ?? "no-image.png"}";
-    if (photoPath.Contains("imagekit"))
-    {
-        photoPath = photoPath.Remove(0, 8);
-    }
 }
 <script>
         $(document).ready(function () {
@@ -25,7 +19,7 @@
 <section class="py-5">
     <input type="hidden" asp-for="User" />
     <div class="row align-items-center">
-        <div class="col-md-4"><img class="card-img-top mb-5 mb-md-0 rounded-1 img-fluid" src="@photoPath" alt="title_image" /></div>
+        <div class="col-md-4"><img class="card-img-top mb-5 mb-md-0 rounded-1 img-fluid" src="@user.AvatarImagePath" alt="title_image" /></div>
         <div class="col-md-8">
             <h1 class="display-5 fw-bolder">@Model.thisUser.UserName</h1>
             <div class="form-group">

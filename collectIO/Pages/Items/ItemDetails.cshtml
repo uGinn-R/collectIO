@@ -3,17 +3,12 @@
 
 @{
     ViewData["Title"] = $"{Locale.Translations["Details"]} - {Model._Item.Name}";
-    var photoPath = $"/images/{ Model._Item.imagePath ?? "no-image.png"}";
-    if (photoPath.Contains("imagekit"))
-    {
-        photoPath = photoPath.Remove(0, 8);
-    }
 }
 
 <section class="py-5">
     <input type="hidden" asp-for="User" />
     <div class="row align-items-center">
-        <div class="col-md-4"><img class="card-img-top mb-5 mb-md-0 rounded-pill" src="@photoPath" alt="title_image" /></div>
+        <div class="col-md-4"><img class="card-img-top mb-5 mb-md-0 rounded-pill" src="@Model._Item.imagePath" alt="title_image" /></div>
         <div class="col-md-8">
             <div class="text-break" style="word-wrap: break-word">
                 <h1 class="display-5 fw-bolder">@Model._Item.Name</h1>

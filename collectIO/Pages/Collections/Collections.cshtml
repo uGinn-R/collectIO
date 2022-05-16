@@ -27,11 +27,6 @@
 
                 @foreach (var item in Model.collection)
                 {
-                    var photoPath = $"/images/{item.imagePath ?? "no-image.png"}";
-                    if (photoPath.Contains("imagekit"))
-                    {
-                        photoPath = photoPath.Remove(0, 8);
-                    }
 
                     <tr>
                         <td>

@@ -4,12 +4,6 @@
 @{
     var title = Model.item.id > 0 ? @Locale.Translations["Edit"] : @Locale.Translations["Create"];
     ViewData["Title"] = title;
-
-    var photoPath = $"/images/{Model.item.imagePath ?? "no-image.png"}";
-    if (photoPath.Contains("imagekit"))
-    {
-        photoPath = photoPath.Remove(0, 8);
-    }
 }
 
 <head>
@@ -44,7 +38,7 @@
 
             <section class="py-5">
                 <div class="row align-items-center">
-                    <div class="col-md-3"><img class="card-img-top mb-5 mb-md-0" src="@photoPath" alt="title_image" /></div>
+                    <div class="col-md-3"><img class="card-img-top mb-5 mb-md-0" src="@Model.item.imagePath" alt="title_image" /></div>
                     <div class="col-md">
 
                         <h2 class="display-5 fw-bolder">@title</h2>
