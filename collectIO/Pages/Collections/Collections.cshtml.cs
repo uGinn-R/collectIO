@@ -20,15 +20,11 @@ namespace collectIO.Pages.Collections
             _userManager = userManager;
         }
         public IEnumerable<Collection> collection { get; set; }
-        //public IEnumerable<Item> collectionItem { get; set; }
         public void OnGet()
         {
 
-            //    collection = _db.GetMyCollections(_userManager.GetUserId(User));
-
                 collection = _db.GetAllCollections();
-            
-            //collectionItem = _db.GetAllItems();
+
         }
         public int GetItemsCount(Collection collection)
         {

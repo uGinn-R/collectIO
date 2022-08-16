@@ -24,7 +24,6 @@ namespace collectIO.Pages.Collections
 
         [BindProperty]
         public Collection collection { get; set; }
-        //public DateTime created { get; set; }
 
         public EditModel(ICollectionRepository repository, UserManager<AppUser> userManager)
         {

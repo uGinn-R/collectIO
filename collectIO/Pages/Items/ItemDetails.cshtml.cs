@@ -89,7 +89,7 @@ namespace collectIO.Pages.Items
                 UserId = thisUser.Id,
                 ItemId = _Item.id
             };
-            if (likes.Count()>0)
+            if (likes.Count() > 0)
             {
                 var myLikes = likes.Where(i => i.UserId == thisUser.Id).ToList().Where(x => x.ItemId == _Item.id);
                 if (myLikes.Count() > 0) // exist
@@ -108,25 +108,6 @@ namespace collectIO.Pages.Items
                 _repository.Add(newLike);
                 return Page();
             }
-
-            //List<Item> likes = new List<Item>();
-            //likes.Add(_Item);
-            //if (thisUser.LikedItems != null)
-            //{
-            //    if (thisUser.LikedItems.Contains(_Item))
-            //    {
-            //        thisUser.LikedItems.Remove(_Item);
-            //        Like newLike = new Like{ LikedItem = _Item, UserID = thisUser.Id};
-            //        await _userManager.UpdateAsync(thisUser);
-            //        return Page();
-            //    }
-            //}
-            //else
-            //{
-            //    thisUser.LikedItems = likes;
-            //    await _userManager.UpdateAsync(thisUser);
-            //}
-            //return Page();
         }
         public async Task OnGetAddComment(string message, int ItemId)
         {
